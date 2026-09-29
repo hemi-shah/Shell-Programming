@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <string.h>
+#include <unistd.h>
 
-void parseInput(char userInput[], char *command, char *argument, pid_t pid)
+void parseInput(char userInput[], char *command, char *argument, pid_t pid);
 
 int main(int argc, char *argv[]){
 
@@ -14,6 +16,9 @@ int main(int argc, char *argv[]){
 
     // stores the number of arguments entered
     int nargs = argc-1;
+
+    // stores arguments from parsing
+    char *argumentsArr[64];
 
     // stores comamnd during parsing
     char *command;
@@ -51,24 +56,55 @@ int main(int argc, char *argv[]){
         fgets(userInput, sizeof(userInput), stdin);
 
         // parse through user input
-        for (int i = 0; i < sizeof(userInput); i++){
-            // get command separated by ; from user input
-            command = strtok(userInput, ";");
-            // get argument separated by space from user input
-            argument = strtok(command, " ");
+        // get the first command separated by ;
+        command = strtok(userInput, ";");
+
+        // continue while there are commands
+        while (command != NULL) {
+
+            // reset argument index to 0
+            int argIndex = 0;
+
+            // get the first argument separated by whitespace
+            argument = strtok(command, " \t\n");
+
+            // get all arguments for this command
+            while (argument != NULL) {
+                // add the argument to the argument array
+                argumentsArr[argIndex] = argument;
+                // iterate the argument index
+                argIndex++;
+
+                // get the next argument separated by whitespace
+                argument = strtok(NULL, " \t\n");
+            }
+
+            // mark the end of the argument array
+            argumentsArr[argIndex] = NULL;
 
             // fork child process
             pid = fork();
 
-            // parent process waits for child process to finish
-            wait(NULL);
-
-            // execute command
-            execvp(argument);
-
-            if (argument == "quit"){
-                return 0;
+            if (pid < 0) {
+                perror("Fork failed");
             }
+            else if (pid == 0) {
+                // child process
+                // execute the command
+                execvp(argumentsArr[0], argumentsArr);
+            }
+            else {
+                // parent process
+                // wait for child
+                wait(NULL);
+            }
+
+            // get the next command separated by ;
+            command = strtok(NULL, ";");
+        }
+
+        if (argument == "quit"){
+            return 0;
         }
     } else {
         perror("Incorrect number of inputs given");
@@ -77,6 +113,6 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-void parseInput(userInput, command, argument, pid){
-
+void parseInput(char userInput[], char *command, char *argument, pid_t pid){
+    // need to add refactored code here
 }
