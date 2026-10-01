@@ -1,0 +1,7 @@
+ls
+ls -l
+pwd
+ls ; pwd
+
+nonexistentcommand
+quit
