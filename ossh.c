@@ -83,10 +83,10 @@ int main(int argc, char *argv[]){
 int parseInput(char userInput[]){
 
     // stores commands from parsing
-    char *commands[64];
+    char *commands[1024];
 
     // stores arguments from parsing
-    char *argumentsArr[64];
+    char *argumentsArr[1024];
 
     // stores command during parsing
     char *command;
@@ -107,7 +107,7 @@ int parseInput(char userInput[]){
     while (command != NULL){
 
         // check if the command array is full
-        if (commandIndex >= 64){
+        if (commandIndex >= 1024){
             // throw error if there are too many commands
             fprintf(stderr, "Too many commands.\n");
             return 1;
